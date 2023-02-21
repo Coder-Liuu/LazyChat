@@ -18,12 +18,6 @@ class Message(abc.ABC):
                 return subclass
         raise ValueError(f"No message class for type {message_type}")
 
-    @classmethod
-    @abc.abstractmethod
-    def from_dict(cls, data):
-        pass
-
-
 
 class LoginRequestMessage(Message):
     message_type = 0
@@ -34,10 +28,6 @@ class LoginRequestMessage(Message):
 
     def to_dict(self):
         return {'username': self.username, 'password': self.password}
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(data['username'], data['password'])
 
 
 class LoginResponseMessage(Message):
@@ -50,3 +40,26 @@ class LoginResponseMessage(Message):
     @classmethod
     def from_dict(cls, data):
         return cls(data['success'], data['msg'])
+
+
+class ChatAllRequestMessage(Message):
+    message_type = 2
+
+    def __init__(self, content, username):
+        self.content = content
+        self.username = username
+
+    def to_dict(self):
+        return {'content': self.content, 'username': self.username}
+
+
+class ChatAllResponseMessage(Message):
+    message_type = 3
+
+    def __init__(self, content, username):
+        self.content = content
+        self.username = username
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data['content'], data['username'])
