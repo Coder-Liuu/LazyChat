@@ -50,7 +50,6 @@ def recv_msg(sock):
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(('localhost', 8080))  # 连接服务器
 
-
 username = input("input username: ")
 password = "123"
 
@@ -63,12 +62,6 @@ client.setblocking(False)
 sel = selectors.DefaultSelector()
 sel.register(client, selectors.EVENT_READ, recv_msg)
 
-# 发送全局消息
-# msg = ChatAllRequestMessage("hello", "zhangsan")
-# send_msg(client, msg)
-
-# msg = ChatAllRequestMessage("hi", "zhangsan")
-# send_msg(client, msg)
 
 class ReadThread(threading.Thread):
     def run(self) -> None:
@@ -87,6 +80,5 @@ while True:
     content = input("msg: ")
     msg = ChatAllRequestMessage(content, username)
     send_msg(client, msg)
-
 
 client.close()
