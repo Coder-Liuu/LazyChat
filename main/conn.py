@@ -1,19 +1,24 @@
+import os
+import random
 import selectors
 import struct
 import json
 import socket
 import threading
+from multiprocessing import Process, Queue
 
-from Message import LoginRequestMessage, Message
+from Message import LoginRequestMessage, Message, ChatAllRequestMessage
+
+queue = Queue()
 
 
 class Conn:
-    def __init__(self, tui):
+    def __init__(self, queue):
         # 发送数据给Netty服务端
         self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conn.connect(('localhost', 8080))  # 连接服务器
-        self.username = "zhangsan"
-        self.tui = tui
+        self.username = random.choice(["zhangsan", "lisi", "wangwu"])
+        self.queue = queue
 
     def login(self):
         password = "123"
@@ -21,13 +26,6 @@ class Conn:
         msg = LoginRequestMessage(self.username, password)
         self.send_msg(msg)
         return self.recv_msg()
-
-    def run(self):
-        # 开始监听消息
-        self.conn.setblocking(False)
-        sel = selectors.DefaultSelector()
-        sel.register(self.conn, selectors.EVENT_READ, self.recv_msg)
-        self.listen_msg(sel)
 
     def send_msg(self, req):
         # 序列化成json字符串，再编码成utf-8格式的bytes
@@ -66,34 +64,49 @@ class Conn:
         print("resp: ", resp)
         return resp
 
-    def listen_msg(self, sel):
-        class ReadThread(threading.Thread):
-            def __init__(self, tui):
-                super().__init__()
-                self.tui = tui
-                print("tui", id(self.tui))
+    def run(self):
+        # 开始监听消息
+        self.conn.setblocking(False)
+        sub_p = Process(target=self.listen_recv, name="监听线程", args=(self.queue,))
+        sub_p.daemon = True
+        sub_p.start()
 
-            def run(self) -> None:
-                print("sub thread run")
-                while True:
-                    print(sel)
-                    print("sub thread event")
-                    r = sel.select()  # 默认是阻塞，有活动连接就返回活动的连接列表
+        # 监听消息队列
+        queue_p = Process(target=self.listen_queue, name="消息队列", args=(self.queue,))
+        queue_p.daemon = True
+        queue_p.start()
 
-                    # 这里看起来是select，其实有可能会使用epoll，如果你的系统支持epoll，那么默认就是epoll
-                    for key, mark in r:
-                        print(r)
-                        callback = key.data  # 注册的回调函数
-                        resp = callback()
+        # 接受输入消息
+        self.input()
 
-        self.readThread = ReadThread(self.tui)
-        # 关闭守护进程模式
-        print("readThread create")
-        self.readThread.setDaemon(True)
-        self.readThread.start()
+    def listen_recv(self, queue):
+        sel = selectors.DefaultSelector()
+        sel.register(self.conn, selectors.EVENT_READ, self.recv_msg)
+
+        while True:
+            event = sel.select()
+            for key, _ in event:
+                callback = key.data
+                resp = callback()
+                queue.put(resp)
+                print("队列 put:", resp, os.getpid())
+
+    def listen_queue(self, queue):
+        print("消息队列启动")
+        while True:
+            resp = queue.get()
+            print("队列 get:", resp)
+
+    def input(self):
+        while True:
+            data = input("你想说:")
+            data = ChatAllRequestMessage(data, self.username)
+            self.send_msg(data)
 
 
 if __name__ == "__main__":
-    client = Conn(None)
+    print("begin", os.getpid())
+    client = Conn(queue)
     client.login()
     client.run()
+    print("over", os.getpid())
