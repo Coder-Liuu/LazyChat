@@ -12,20 +12,15 @@ from Message import LoginRequestMessage, Message, ChatAllRequestMessage
 queue = Queue()
 
 
-class Conn:
+class CoreNet:
     def __init__(self, queue):
         # 发送数据给Netty服务端
         self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conn.connect(('localhost', 8080))  # 连接服务器
-        self.username = random.choice(["zhangsan", "lisi", "wangwu"])
         self.queue = queue
 
-    def login(self):
-        password = "123"
-        # 创建一个登录请求对象
-        msg = LoginRequestMessage(self.username, password)
-        self.send_msg(msg)
-        return self.recv_msg()
+    def __del__(self):
+        self.conn.close()
 
     def send_msg(self, req):
         # 序列化成json字符串，再编码成utf-8格式的bytes
@@ -44,7 +39,7 @@ class Conn:
         # 将数据部分拼接到打包好的数据中
         packed_data += data
         self.conn.sendall(packed_data)  # 发送数据
-        print("read", req)
+        print("send_msg: ", req)
 
     def recv_msg(self) -> Message:
         # 接收服务器返回的数据
@@ -61,7 +56,7 @@ class Conn:
         # 根据消息类型创建相应的消息对象，并从字典中还原消息的属性
         msg = Message.get_message_class(message_type=msg_type)
         resp = msg.from_dict(data)
-        print("resp: ", resp)
+        print("recv_msg: ", resp)
         return resp
 
     def run(self):
@@ -71,13 +66,6 @@ class Conn:
         sub_p.daemon = True
         sub_p.start()
 
-        # 监听消息队列
-        queue_p = Process(target=self.listen_queue, name="消息队列", args=(self.queue,))
-        queue_p.daemon = True
-        queue_p.start()
-
-        # 接受输入消息
-        self.input()
 
     def listen_recv(self, queue):
         sel = selectors.DefaultSelector()
@@ -91,22 +79,6 @@ class Conn:
                 queue.put(resp)
                 print("队列 put:", resp, os.getpid())
 
-    def listen_queue(self, queue):
-        print("消息队列启动")
-        while True:
-            resp = queue.get()
-            print("队列 get:", resp)
-
-    def input(self):
-        while True:
-            data = input("你想说:")
-            data = ChatAllRequestMessage(data, self.username)
-            self.send_msg(data)
 
 
-if __name__ == "__main__":
-    print("begin", os.getpid())
-    client = Conn(queue)
-    client.login()
-    client.run()
-    print("over", os.getpid())
+
