@@ -9,12 +9,10 @@ from Message import ChatAllRequestMessage, LoginRequestMessage
 from corenet import CoreNet
 import asyncio
 
-
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 
-
-class Content(Static):
+class ContentBox(Static):
     CSS_PATH = "ui/tui.css"
 
     def __init__(self, classes):
@@ -38,59 +36,49 @@ class TermApp(App):
         super().__init__()
         self.username = random.choice(["zhangsan", "lisi", "wangwu"])
         self.core = core
+        self.inputBox = Input(placeholder="Enter your name")
+        self.contentBox = ContentBox(classes="content_box")
 
     @classmethod
-    def run(cls, core):
-        async def run_app():
+    def runAll(cls, core):
+        def run_app():
             app = cls(core)
-            await app._process_messages()
-        asyncio.run(run_app())
+            app.run()
+
+        run_app()
 
     def compose(self) -> ComposeResult:
-        yield self.content
-        yield self.input
+        yield self.contentBox
+        yield self.inputBox
 
     def on_load(self):
         self.username = random.choice(["zhangsan", "lisi", "wangwu"])
         msg = LoginRequestMessage(self.username, "123")
+
         self.core.send_msg(msg)
         self.core.recv_msg()
         self.core.run()
 
-        logging.debug("on load")
-
-        s = "PID: " + str(os.getpid())
-        self.input = Input(placeholder="Enter your name" + s)
-        self.content = Content(classes="content_box")
-        self.set_interval(0.3, self.server_listen)
-
+        # logging.debug("on load")
+        self.set_interval(0.1, self.server_listen)
 
     def server_listen(self):
-        logging.debug("server_listen")
-        logging.debug(self.core.queue.qsize())
         if self.core.queue.qsize():
             message = self.core.queue.get()
-            self.content.append(message.content)
-
-            # logging.debug("queue get",message)
-
+            self.contentBox.append(message.content)
 
     def on_input_submitted(self, event: Input.Submitted):
         logging.debug("on_input_submitted")
+
         msg = ChatAllRequestMessage(event.value + "\n", self.username)
-
-        logging.debug("send_msg")
         self.core.send_msg(msg)
-        self.content.append("my: " + event.value)
-        self.input.value = ""
-        logging.debug(self.core.queue)
+        self.contentBox.append("my: " + event.value)
+        self.inputBox.value = ""
 
+        logging.debug(self.core.queue)
 
 
 if __name__ == "__main__":
     queue = Queue()
     core = CoreNet(queue)
-    TermApp.run(core)
-    # app = TermApp(core)
-    # app.login()
-    # app.runAll()
+    TermApp.runAll(core)

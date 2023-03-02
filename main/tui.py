@@ -62,7 +62,7 @@ class TermApp(App):
 
     def runAll(self):
         log("runAll", threading.currentThread().getName())
-        self.core.run()
+        self.core.run(),
 
         t1 = threading.Thread(target=self.listen_queue, name="消息队列", args=(self.core.queue,))
         t1.setDaemon(True)

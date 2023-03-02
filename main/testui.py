@@ -19,7 +19,7 @@ class TestUI:
         msg = LoginRequestMessage(self.username, password)
         self.core.send_msg(msg)
         self.core.recv_msg()
-        self.core.run()
+        self.core.run(),
         return True
 
     def run(self):
@@ -27,13 +27,9 @@ class TestUI:
         t1 = Thread(target=self.listen_queue, name="消息队列", args=(self.core.queue,))
         t1.setDaemon(True)
         t1.start()
-        # queue_p = Process(target=listen_queue, name="消息队列", args=(self.core.queue,))
-        # queue_p.daemon = True
-        # queue_p.start()
-        current = threading.currentThread()
 
         while True:
-            data = input(str(current.getName()) + " 你想说:")
+            data = input("你想说:")
             data = ChatAllRequestMessage(data, self.username)
             self.core.send_msg(data)
 
@@ -44,10 +40,8 @@ class TestUI:
 
 
 if __name__ == "__main__":
-    print("begin", os.getpid())
     queue = Queue()
     coreNet = CoreNet(queue)
     ui = TestUI(coreNet)
     ui.login()
     ui.run()
-    print("over", os.getpid())
