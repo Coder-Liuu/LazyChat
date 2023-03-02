@@ -4,7 +4,7 @@ import threading
 from queue import Queue
 from threading import Thread
 
-from Message import ChatAllRequestMessage, LoginRequestMessage
+from message import ChatAllRequestMessage, LoginRequestMessage
 from corenet import CoreNet
 
 

@@ -22,14 +22,12 @@ Screen {
 }
 
 
-BSOD {
+LoginBox {
     align: center middle;
-    background: blue;
-    color: white;
 }
 
-BSOD>Static {
-    width: 70;
+LoginBox>Static {
+    align: center middle;
 }
 
 #title {
@@ -39,4 +37,16 @@ BSOD>Static {
 
 #any-key {
     content-align-horizontal: center;
+}
+
+
+Tip {
+    width: 40;
+    height: 9;
+    padding: 1 2;
+    background: $panel;
+    color: $text;
+    border: $secondary tall;
+    align: center middle;
+    content-align: center middle;
 }

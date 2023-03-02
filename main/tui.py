@@ -4,10 +4,10 @@ from queue import Queue
 
 from textual.app import App, ComposeResult
 from textual.widgets import Input
-from Message import ChatAllRequestMessage
+from message import ChatAllRequestMessage
 from corenet import CoreNet
 from widgets.ContentBox import ContentBox
-from widgets.screen01 import BSOD
+from widgets.LoginBox import LoginBox
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
@@ -20,7 +20,7 @@ class TermApp(App):
         super().__init__()
         self.username = random.choice(["zhangsan", "lisi", "wangwu"])
         self.core = core
-        self.inputBox = Input(placeholder="Enter your name", name="inputBox")
+        self.inputBox = Input(placeholder="Say Something", name="inputBox")
         self.contentBox = ContentBox(classes="content_box")
 
     @classmethod
@@ -36,19 +36,12 @@ class TermApp(App):
         yield self.inputBox
 
     def on_mount(self) -> None:
-        self.install_screen(BSOD(), name="bsod")
+        self.install_screen(LoginBox(), name="bsod")
         self.push_screen('bsod')
 
-    # def on_load(self):
-        # self.username = random.choice(["zhangsan", "lisi", "wangwu"])
-        # msg = LoginRequestMessage(self.username, "123")
-        #
-        # self.core.send_msg(msg)
-        # self.core.recv_msg()
-        # self.core.run()
-
-        # logging.debug("on load")
-        # self.set_interval(0.1, self.server_listen)
+    def core_run(self):
+        self.set_interval(0.1, self.server_listen)
+        self.core.run()
 
     def server_listen(self):
         if self.core.queue.qsize():

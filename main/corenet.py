@@ -7,7 +7,7 @@ import json
 import socket
 import threading
 
-from Message import LoginRequestMessage, Message, ChatAllRequestMessage
+from message import LoginRequestMessage, Message, ChatAllRequestMessage
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
