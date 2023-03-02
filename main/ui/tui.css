@@ -8,18 +8,25 @@ Screen {
 }
 
 .blank {
-    background: blue 70%;
-    height: 4;
-    border: wide black;
+    /* 加上使得不会有区分度 */
+    background: $panel;
+    /*content-align-vertical: middle;*/
+    /*content-align-horizontal: center;*/
+    /*border: wide black;*/
+    align: left middle;
+    /*border: solid green;*/
+    /*width: 100%;*/
 }
 
 .center_label{
     content-align-horizontal: center;
     content-align-vertical: middle;
     width: 100%;
-    height: 1;
     color: white;
 }
+
+
+
 
 
 LoginBox {
@@ -41,8 +48,8 @@ LoginBox>Static {
 
 
 Tip {
-    width: 40;
-    height: 9;
+    width: 50%;
+    height: 50%;
     padding: 1 2;
     background: $panel;
     color: $text;

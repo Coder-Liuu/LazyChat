@@ -3,7 +3,7 @@ import random
 from queue import Queue
 
 from textual.app import App, ComposeResult
-from textual.widgets import Input
+from textual.widgets import Input, Header
 from message import ChatAllRequestMessage
 from corenet import CoreNet
 from widgets.ContentBox import ContentBox
@@ -16,11 +16,12 @@ class TermApp(App):
     CSS_PATH = "ui/tui.css"
     BINDINGS = [("b", "push_screen('bsod')", "BSOD")]
 
-    def __init__(self, core):
+    def __init__(self, core = CoreNet(Queue)):
         super().__init__()
         self.core = core
         self.inputBox = Input(placeholder="Say Something", name="inputBox")
         self.contentBox = ContentBox(classes="content_box")
+        self.header = Header(name="Welcome to TermApp", show_clock=True)
 
     @classmethod
     def runAll(cls, core):
@@ -33,6 +34,7 @@ class TermApp(App):
     def compose(self) -> ComposeResult:
         yield self.contentBox
         yield self.inputBox
+        yield self.header
 
     def on_mount(self) -> None:
         self.install_screen(LoginBox(), name="bsod")
@@ -49,7 +51,10 @@ class TermApp(App):
     def server_listen(self):
         if self.core.queue.qsize():
             message = self.core.queue.get()
-            self.contentBox.append(message.username + ": " + message.content)
+            if message.username == self.username:
+                self.contentBox.append(f"[bold red]{message.username}[/bold red] : {message.content}")
+            else:
+                self.contentBox.append(f"[bold black]{message.username}[/bold black] : {message.content}")
 
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":
@@ -57,7 +62,6 @@ class TermApp(App):
 
             msg = ChatAllRequestMessage(event.value + "\n", self.username)
             self.core.send_msg(msg)
-            # self.contentBox.append("my: " + event.value)
             self.inputBox.value = ""
 
 

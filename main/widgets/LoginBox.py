@@ -24,8 +24,8 @@ class LoginBox(Screen):
     BINDINGS = [("escape", "app.pop_screen", "Pop screen")]
 
     def on_mount(self) -> None:
-        self.username = ""
-        self.password = ""
+        self.username = "zhangsan"
+        self.password = "123"
 
         self.tip = Tip()
         self.app.install_screen(self.tip, name="tip")
