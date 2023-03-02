@@ -18,7 +18,6 @@ class TermApp(App):
 
     def __init__(self, core):
         super().__init__()
-        self.username = random.choice(["zhangsan", "lisi", "wangwu"])
         self.core = core
         self.inputBox = Input(placeholder="Say Something", name="inputBox")
         self.contentBox = ContentBox(classes="content_box")
@@ -40,13 +39,17 @@ class TermApp(App):
         self.push_screen('bsod')
 
     def core_run(self):
+        # 聚焦到下一个部件
+        self.screen.focus_next()
+        self.screen.focus_next()
+
         self.set_interval(0.1, self.server_listen)
         self.core.run()
 
     def server_listen(self):
         if self.core.queue.qsize():
             message = self.core.queue.get()
-            self.contentBox.append(message.content)
+            self.contentBox.append(message.username + ": " + message.content)
 
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":
@@ -54,7 +57,7 @@ class TermApp(App):
 
             msg = ChatAllRequestMessage(event.value + "\n", self.username)
             self.core.send_msg(msg)
-            self.contentBox.append("my: " + event.value)
+            # self.contentBox.append("my: " + event.value)
             self.inputBox.value = ""
 
 

@@ -29,6 +29,9 @@ class LoginBox(Screen):
 
         self.tip = Tip()
         self.app.install_screen(self.tip, name="tip")
+        # 聚焦到下一个部件
+        self.focus_next()
+
 
     def compose(self) -> ComposeResult:
         yield Static("欢迎登陆[b]TermAPP[/b]", id="title")
@@ -47,6 +50,7 @@ class LoginBox(Screen):
             self.app.core.send_msg(req)
             resp = self.app.core.recv_msg()
             if resp.success:
+                self.app.username = self.username
                 self.app.pop_screen()
                 self.app.core_run()
             else:
