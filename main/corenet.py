@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 import selectors
@@ -5,12 +6,10 @@ import struct
 import json
 import socket
 import threading
-from multiprocessing import Process, Queue
 
 from Message import LoginRequestMessage, Message, ChatAllRequestMessage
 
-queue = Queue()
-
+logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 class CoreNet:
     def __init__(self, queue):
@@ -23,6 +22,7 @@ class CoreNet:
         self.conn.close()
 
     def send_msg(self, req):
+        logging.debug(f"coreNet sendMsg: {req}")
         # 序列化成json字符串，再编码成utf-8格式的bytes
         data = json.dumps(req.to_dict()).encode('utf-8')
 
@@ -39,11 +39,12 @@ class CoreNet:
         # 将数据部分拼接到打包好的数据中
         packed_data += data
         self.conn.sendall(packed_data)  # 发送数据
-        print("send_msg: ", req)
+        logging.debug(f"send_msg: {packed_data}")
 
     def recv_msg(self) -> Message:
         # 接收服务器返回的数据
         received_bytes = self.conn.recv(12)
+        logging.debug(f"received_bytes {received_bytes}")
 
         # 解包收到的数据
         magic_num, version, serializer_type, msg_type, padding, data_len = \
@@ -51,20 +52,24 @@ class CoreNet:
 
         # 将数据部分提取出来
         data = self.conn.recv(data_len)
+        logging.debug(f"data {data}")
         # 将收到的数据解码为utf-8编码的字符串，再反序列化为字典对象
         data = json.loads(data.decode())
         # 根据消息类型创建相应的消息对象，并从字典中还原消息的属性
         msg = Message.get_message_class(message_type=msg_type)
         resp = msg.from_dict(data)
-        print("recv_msg: ", resp)
+        logging.debug("recv_msg: {}".format(resp))
         return resp
 
     def run(self):
-        # 开始监听消息
+        logging.debug("开始监听消息")
         self.conn.setblocking(False)
-        sub_p = Process(target=self.listen_recv, name="监听线程", args=(self.queue,))
-        sub_p.daemon = True
-        sub_p.start()
+        t1 = threading.Thread(target=self.listen_recv, name="消息队列", args=(self.queue,))
+        t1.setDaemon(True)
+        t1.start()
+        # sub_p = Process(target=self.listen_recv, name="监听线程", args=(self.queue,))
+        # sub_p.daemon = True
+        # sub_p.start()
 
 
     def listen_recv(self, queue):
@@ -72,13 +77,10 @@ class CoreNet:
         sel.register(self.conn, selectors.EVENT_READ, self.recv_msg)
 
         while True:
+            logging.debug("queue put block")
             event = sel.select()
             for key, _ in event:
                 callback = key.data
                 resp = callback()
                 queue.put(resp)
-                print("队列 put:", resp, os.getpid())
-
-
-
-
+                logging.debug(f"queue put: {resp} {os.getpid()}")

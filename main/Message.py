@@ -19,6 +19,7 @@ class Message(abc.ABC):
         raise ValueError(f"No message class for type {message_type}")
 
 
+
 class LoginRequestMessage(Message):
     message_type = 0
 
