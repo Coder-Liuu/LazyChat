@@ -1,91 +1,71 @@
-import datetime
-import os
-import threading
+import logging
 import random
-import time
 from queue import Queue
 
-from textual.app import App, ComposeResult, CSSPathType, AutopilotCallbackType, ReturnType
-from textual.widgets import Static, TextLog, Input, ListView, ListItem, Label
-from Message import ChatAllRequestMessage, LoginRequestMessage
+from textual.app import App, ComposeResult
+from textual.widgets import Input
+from Message import ChatAllRequestMessage
 from corenet import CoreNet
-from textual import log
+from widgets.ContentBox import ContentBox
+from widgets.screen01 import BSOD
 
-
-class Content(Static):
-    CSS_PATH = "ui/tui.css"
-
-    def __init__(self, classes):
-        super().__init__(classes=classes)
-        self.list = ListView(
-            ListItem(Label("  "), classes="blank")
-        )
-
-    def compose(self) -> ComposeResult:
-        yield Label("Content", classes="center_label")
-        yield self.list
-
-    def append(self, value):
-        self.list.append(ListItem(Label(value), classes="blank"))
+logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 
 class TermApp(App):
     CSS_PATH = "ui/tui.css"
+    BINDINGS = [("b", "push_screen('bsod')", "BSOD")]
 
     def __init__(self, core):
         super().__init__()
         self.username = random.choice(["zhangsan", "lisi", "wangwu"])
         self.core = core
+        self.inputBox = Input(placeholder="Enter your name", name="inputBox")
+        self.contentBox = ContentBox(classes="content_box")
 
-        s = "PID: " + str(os.getpid())
-        self.input = Input(placeholder="Enter your name" + s)
-        self.content = Content(classes="content_box")
+    @classmethod
+    def runAll(cls, core):
+        def run_app():
+            app = cls(core)
+            app.run()
 
-    def login(self):
-        password = "123"
-        # 创建一个登录请求对象
-        msg = LoginRequestMessage(self.username, password)
-        self.core.send_msg(msg)
-        self.core.recv_msg()
-        return True
+        run_app()
 
     def compose(self) -> ComposeResult:
-        yield self.content
-        yield self.input
+        yield self.contentBox
+        yield self.inputBox
+
+    def on_mount(self) -> None:
+        self.install_screen(BSOD(), name="bsod")
+        self.push_screen('bsod')
+
+    # def on_load(self):
+        # self.username = random.choice(["zhangsan", "lisi", "wangwu"])
+        # msg = LoginRequestMessage(self.username, "123")
+        #
+        # self.core.send_msg(msg)
+        # self.core.recv_msg()
+        # self.core.run()
+
+        # logging.debug("on load")
+        # self.set_interval(0.1, self.server_listen)
+
+    def server_listen(self):
+        if self.core.queue.qsize():
+            message = self.core.queue.get()
+            self.contentBox.append(message.content)
 
     def on_input_submitted(self, event: Input.Submitted):
-        log("on_input_submitted")
-        msg = ChatAllRequestMessage(event.value + "\n", self.username)
-        self.core.send_msg(msg)
-        self.content.append("my: " + event.value)
-        self.input.value = ""
+        if event.input.name == "inputBox":
+            logging.debug("APP: on_input_submitted")
 
-    def runAll(self):
-        log("runAll", threading.currentThread().getName())
-        self.core.run(),
-
-        t1 = threading.Thread(target=self.listen_queue, name="消息队列", args=(self.core.queue,))
-        t1.setDaemon(True)
-        t1.start()
-        # queue_p = Process(target=self.listen_queue, name="消息队列", args=(self.core.queue,))
-        # queue_p.daemon = True
-        # queue_p.start()
-        self.run()
-
-
-    def listen_queue(self, queue):
-        log("消息队列启动", threading.currentThread().getName())
-        while True:
-            print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))  # 打印按指定格式排版的时间
-            time.sleep(0.1)
-            # resp = self.core.queue.get()
-            # self.content.append("server: " + resp.content)
-            # log("队列 get:", resp, os.getpid())
+            msg = ChatAllRequestMessage(event.value + "\n", self.username)
+            self.core.send_msg(msg)
+            self.contentBox.append("my: " + event.value)
+            self.inputBox.value = ""
 
 
 if __name__ == "__main__":
     queue = Queue()
     core = CoreNet(queue)
-    app = TermApp(core)
-    app.login()
-    app.runAll()
+    TermApp.runAll(core)

@@ -20,3 +20,23 @@ Screen {
     height: 1;
     color: white;
 }
+
+
+BSOD {
+    align: center middle;
+    background: blue;
+    color: white;
+}
+
+BSOD>Static {
+    width: 70;
+}
+
+#title {
+    content-align-horizontal: center;
+    text-style: reverse;
+}
+
+#any-key {
+    content-align-horizontal: center;
+}
