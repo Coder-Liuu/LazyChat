@@ -1,23 +1,14 @@
 import logging
-import time
 
-from textual.app import App, ComposeResult, RenderResult
+from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual.widgets import Static, Input
 
-from message import LoginRequestMessage, LoginResponseMessage
+from message import LoginRequestMessage
+
+from widgets.Tip import Tip
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
-
-
-class Tip(Screen):
-    BINDINGS = [("enter", "app.pop_screen", "Pop screen")]
-
-    def update(self, text):
-        self.text = text
-
-    def render(self) -> RenderResult:
-        return self.text
 
 
 class LoginBox(Screen):
@@ -31,7 +22,6 @@ class LoginBox(Screen):
         self.app.install_screen(self.tip, name="tip")
         # 聚焦到下一个部件
         self.focus_next()
-
 
     def compose(self) -> ComposeResult:
         yield Static("欢迎登陆[b]TermAPP[/b]", id="title")
@@ -56,8 +46,6 @@ class LoginBox(Screen):
             else:
                 self.tip.update(resp.msg + "\n" + "按回车键重新登陆")
                 self.app.push_screen('tip')
-
-            logging.debug(f"recv msg: {resp}")
 
 
 if __name__ == "__main__":

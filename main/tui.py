@@ -3,7 +3,10 @@ import random
 from queue import Queue
 
 from textual.app import App, ComposeResult
-from textual.widgets import Input, Header
+from textual.containers import Horizontal, Vertical
+from textual.widgets import Input, Header, Static
+
+from widgets.FriendsBox import FriendsBox
 from message import ChatAllRequestMessage
 from corenet import CoreNet
 from widgets.ContentBox import ContentBox
@@ -12,16 +15,17 @@ from widgets.LoginBox import LoginBox
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 
-class TermApp(App):
+class LazyChat(App):
     CSS_PATH = "ui/tui.css"
     BINDINGS = [("b", "push_screen('bsod')", "BSOD")]
 
-    def __init__(self, core = CoreNet(Queue)):
+    def __init__(self, core):
         super().__init__()
         self.core = core
         self.inputBox = Input(placeholder="Say Something", name="inputBox")
         self.contentBox = ContentBox(classes="content_box")
         self.header = Header(name="Welcome to TermApp", show_clock=True)
+        self.friendsBox = FriendsBox(classes="horizontal")
 
     @classmethod
     def runAll(cls, core):
@@ -32,9 +36,15 @@ class TermApp(App):
         run_app()
 
     def compose(self) -> ComposeResult:
-        yield self.contentBox
-        yield self.inputBox
         yield self.header
+        yield Horizontal(
+            self.friendsBox,
+            Vertical(
+                self.contentBox,
+                self.inputBox,
+                classes="vertical"
+            ),
+        )
 
     def on_mount(self) -> None:
         self.install_screen(LoginBox(), name="bsod")
@@ -59,6 +69,7 @@ class TermApp(App):
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":
             logging.debug("APP: on_input_submitted")
+            # logging.debug(f"child: {self.contentBox.hi.}")
 
             msg = ChatAllRequestMessage(event.value + "\n", self.username)
             self.core.send_msg(msg)
@@ -68,4 +79,4 @@ class TermApp(App):
 if __name__ == "__main__":
     queue = Queue()
     core = CoreNet(queue)
-    TermApp.runAll(core)
+    LazyChat.runAll(core)

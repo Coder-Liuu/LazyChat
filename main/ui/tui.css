@@ -1,21 +1,22 @@
-Screen {
-    layout: vertical;
+/* LazyChat */
+.horizontal {
+    width: 20%;
+    height: 100%;
+    border: solid green;
 }
 
+.vertical {
+    width: 78%;
+}
+
+/* Content_Box */
 .content_box {
     height: 3fr;
     border: solid green;
 }
 
 .blank {
-    /* 加上使得不会有区分度 */
-    background: $panel;
-    /*content-align-vertical: middle;*/
-    /*content-align-horizontal: center;*/
-    /*border: wide black;*/
     align: left middle;
-    /*border: solid green;*/
-    /*width: 100%;*/
 }
 
 .center_label{
@@ -26,9 +27,7 @@ Screen {
 }
 
 
-
-
-
+/* Login Box*/
 LoginBox {
     align: center middle;
 }
@@ -40,10 +39,6 @@ LoginBox>Static {
 #title {
     content-align-horizontal: center;
     text-style: reverse;
-}
-
-#any-key {
-    content-align-horizontal: center;
 }
 
 
