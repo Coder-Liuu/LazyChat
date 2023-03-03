@@ -19,7 +19,6 @@ class Message(abc.ABC):
         raise ValueError(f"No message class for type {message_type}")
 
 
-
 class LoginRequestMessage(Message):
     message_type = 0
 
@@ -64,3 +63,28 @@ class ChatAllResponseMessage(Message):
     @classmethod
     def from_dict(cls, data):
         return cls(data['content'], data['username'])
+
+
+class ChatToOneRequestMessage(Message):
+    message_type = 4
+
+    def __init__(self, from_user, to_user, content):
+        self.from_user = from_user
+        self.to_user = to_user
+        self.content = content
+
+    def to_dict(self):
+        return {'from_user': self.from_user, "to_user": self.to_user, 'content': self.content}
+
+
+class ChatToOneResponseMessage(Message):
+    message_type = 5
+
+    def __init__(self, from_user, to_user, content):
+        self.from_user = from_user
+        self.to_user = to_user
+        self.content = content
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data["from_user"], data["to_user"], data["content"])

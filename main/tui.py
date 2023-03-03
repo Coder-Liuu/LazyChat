@@ -7,7 +7,7 @@ from textual.containers import Horizontal, Vertical
 from textual.widgets import Input, Header
 
 from widgets.FriendsBox import FriendsBox
-from message import ChatAllRequestMessage
+from message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage
 from corenet import CoreNet
 from widgets.ContentBox import ContentBox
 from widgets.LoginBox import LoginBox
@@ -19,8 +19,8 @@ logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 class LazyChat(App):
     CSS_PATH = "ui/tui.css"
     BINDINGS = [("b", "push_screen('bsod')", "BSOD"),
-        ("h", "push_screen('welcome')", "WelCome")
-    ]
+                ("h", "push_screen('welcome')", "WelCome")
+                ]
 
     def __init__(self, core):
         super().__init__()
@@ -54,7 +54,6 @@ class LazyChat(App):
             ),
         )
 
-
     def core_run(self):
         # 聚焦到下一个部件
         self.screen.focus_next()
@@ -66,21 +65,34 @@ class LazyChat(App):
     def server_listen(self):
         if self.core.queue.qsize():
             message = self.core.queue.get()
-            if message.username == self.username:
-                self.contentBox.append(f"[bold red]{message.username}[/bold red] : {message.content}")
-            else:
-                self.contentBox.append(f"[bold black]{message.username}[/bold black] : {message.content}")
+            logging.debug(f"server listen: {message} {type(message)}")
+            if isinstance(message, ChatAllResponseMessage):
+                if message.username == self.username:
+                    self.contentBox.append(f"[bold red]{message.username}[/bold red] : {message.content}")
+                else:
+                    self.contentBox.append(f"[bold black]{message.username}[/bold black] : {message.content}")
+            elif isinstance(message, ChatToOneResponseMessage):
+                from_user = message.from_user
+                if self.contentBox.map.get(from_user) is None:
+                    self.contentBox.map[from_user] = ""
+                self.contentBox.map[from_user] += f"[bold black]{message.from_user}[/bold black] : {message.content}"
+
+                if from_user == self.contentBox.label.text:
+                    self.contentBox.update_list(from_user)
 
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":
-            if self.contentBox.label.text == "ChatAll":
+            to_user = self.contentBox.label.text
+            if to_user == "ChatAll":
                 logging.debug("APP: on_input_submitted")
-                # logging.debug(f"child: {self.contentBox.hi.}")
-
                 msg = ChatAllRequestMessage(event.value + "\n", self.username)
                 self.core.send_msg(msg)
                 self.inputBox.value = ""
-
+            else:
+                msg = ChatToOneRequestMessage(self.username, to_user, event.value + "\n")
+                self.contentBox.append(f"[bold red]{self.username}[/bold red] : {event.value}\n")
+                self.core.send_msg(msg)
+                self.inputBox.value = ""
 
 
 if __name__ == "__main__":

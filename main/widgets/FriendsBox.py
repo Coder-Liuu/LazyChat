@@ -14,6 +14,7 @@ class FriendsBox(Static):
         self.list = ListView(
             ListItem(Label("ChatAll"), name="ChatAll"),
             ListItem(Label("lisi"), name="lisi"),
+            ListItem(Label("zhangsan"), name="zhangsan"),
         )
 
     def compose(self) -> ComposeResult:
