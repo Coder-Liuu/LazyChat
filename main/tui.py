@@ -4,20 +4,23 @@ from queue import Queue
 
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Input, Header, Static
+from textual.widgets import Input, Header
 
 from widgets.FriendsBox import FriendsBox
 from message import ChatAllRequestMessage
 from corenet import CoreNet
 from widgets.ContentBox import ContentBox
 from widgets.LoginBox import LoginBox
+from widgets.Welcome import Welcome
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 
 class LazyChat(App):
     CSS_PATH = "ui/tui.css"
-    BINDINGS = [("b", "push_screen('bsod')", "BSOD")]
+    BINDINGS = [("b", "push_screen('bsod')", "BSOD"),
+        ("h", "push_screen('welcome')", "WelCome")
+    ]
 
     def __init__(self, core):
         super().__init__()
@@ -26,6 +29,11 @@ class LazyChat(App):
         self.contentBox = ContentBox(classes="content_box")
         self.header = Header(name="Welcome to TermApp", show_clock=True)
         self.friendsBox = FriendsBox(classes="horizontal")
+
+    def on_mount(self) -> None:
+        self.install_screen(LoginBox(), name="bsod")
+        self.install_screen(Welcome(), name="welcome")
+        self.push_screen('bsod')
 
     @classmethod
     def runAll(cls, core):
@@ -46,9 +54,6 @@ class LazyChat(App):
             ),
         )
 
-    def on_mount(self) -> None:
-        self.install_screen(LoginBox(), name="bsod")
-        self.push_screen('bsod')
 
     def core_run(self):
         # 聚焦到下一个部件
@@ -68,12 +73,14 @@ class LazyChat(App):
 
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":
-            logging.debug("APP: on_input_submitted")
-            # logging.debug(f"child: {self.contentBox.hi.}")
+            if self.contentBox.label.text == "ChatAll":
+                logging.debug("APP: on_input_submitted")
+                # logging.debug(f"child: {self.contentBox.hi.}")
 
-            msg = ChatAllRequestMessage(event.value + "\n", self.username)
-            self.core.send_msg(msg)
-            self.inputBox.value = ""
+                msg = ChatAllRequestMessage(event.value + "\n", self.username)
+                self.core.send_msg(msg)
+                self.inputBox.value = ""
+
 
 
 if __name__ == "__main__":
