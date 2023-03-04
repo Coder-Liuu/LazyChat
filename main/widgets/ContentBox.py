@@ -21,13 +21,13 @@ class ContentBox(Static):
         height: 3fr;
         border: solid green;
     }
-
     """
 
     def __init__(self, classes):
         super().__init__(classes=classes)
         self.label = NewLabel(classes="center_label")
         self.list = ListView()
+        self.list.can_focus = False
         self.map = dict()
 
     def compose(self) -> ComposeResult:

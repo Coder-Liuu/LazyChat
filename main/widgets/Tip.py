@@ -1,10 +1,12 @@
 from textual.app import RenderResult
-from textual.screen import Screen
+from textual.widget import Widget
+from textual.widgets import Static
 
 
-class Tip(Screen):
+class Tip(Widget):
     DEFAULT_CSS = """
     Tip {
+        layer: above;
         width: 50%;
         height: 50%;
         padding: 1 2;
@@ -15,7 +17,7 @@ class Tip(Screen):
         content-align: center middle;
     }
     """
-    BINDINGS = [("enter", "app.pop_screen", "Pop screen")]
+    text = ""
 
     def update(self, text):
         self.text = text

@@ -1,3 +1,8 @@
+Screen {
+    align: center middle;
+    /*layers: below above;*/
+    /*border: solid green;*/
+}
 /* LazyChat */
 .horizontal {
     width: 20%;

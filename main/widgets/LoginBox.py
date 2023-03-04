@@ -26,21 +26,30 @@ class LoginBox(Screen):
         text-style: reverse;
     }
     """
-    BINDINGS = [("escape", "app.pop_screen", "Pop screen")]
+    BINDINGS = [("escape", "remove_tip", "Remove Tip Widget")]
+
+    tip = Tip()
+    input_username = Input(placeholder="账号", name="username")
+    input_password = Input(placeholder="密码", password=True, name="password")
+    tip.styles.display = "none"
 
     def on_mount(self) -> None:
         self.username = "zhangsan"
-        self.password = "12"
+        self.password = "123"
 
-        self.tip = Tip()
-        self.app.install_screen(self.tip, name="tip")
-        # 聚焦到下一个部件
-        self.focus_next()
+        # 聚焦到 input_username组件
+        self.set_focus(self.input_username)
+        # 聚焦到下一个组件
+        # self.focus_next()
 
     def compose(self) -> ComposeResult:
         yield Static("欢迎登陆[b]TermAPP[/b]", id="title")
-        yield Input(placeholder="账号", name="username")
-        yield Input(placeholder="密码", password=True, name="password")
+        yield self.input_username
+        yield self.input_password
+        yield self.tip
+
+    def action_remove_tip(self):
+        self.tip.styles.display = "none"
 
     def on_input_changed(self, event: Input.Changed):
         if event.input.name == "username":
@@ -58,8 +67,8 @@ class LoginBox(Screen):
                 self.app.pop_screen()
                 self.app.core_run()
             else:
-                self.tip.update(resp.msg + "\n" + "按回车键重新登陆")
-                self.app.push_screen('tip')
+                self.tip.update(resp.msg + "\n" + "按[bold red][ESC][/bold red]关闭窗口 :vampire:")
+                self.tip.styles.display = "block"
 
 
 if __name__ == "__main__":

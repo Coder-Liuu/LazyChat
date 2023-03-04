@@ -1,11 +1,11 @@
 import logging
-import random
 from queue import Queue
 
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.widgets import Input, Header
 
+from widgets.CommandBox import CommandBox
 from widgets.FriendsBox import FriendsBox
 from message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage
 from corenet import CoreNet
@@ -18,9 +18,13 @@ logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 class LazyChat(App):
     CSS_PATH = "ui/tui.css"
-    BINDINGS = [("b", "push_screen('bsod')", "BSOD"),
-                ("h", "push_screen('welcome')", "WelCome")
-                ]
+    BINDINGS = [
+        ("b", "push_screen('bsod')", "BSOD"),
+        ("h", "push_screen('welcome')", "WelCome"),
+        ("c", "display_commandBox()", "DisPlay CommandBox"),
+        ("escape ", "remove_commandBox()", "Remove CommandBox"),
+        ("ctrl+h", "focus_friendsBox()", "Focus FriendsBox"),
+    ]
 
     def __init__(self, core):
         super().__init__()
@@ -29,6 +33,19 @@ class LazyChat(App):
         self.contentBox = ContentBox(classes="content_box")
         self.header = Header(name="Welcome to TermApp", show_clock=True)
         self.friendsBox = FriendsBox(classes="horizontal")
+        self.commandBox = CommandBox(id="commandBox")
+        self.commandBox.styles.display = "none"
+
+    def action_display_commandBox(self):
+        self.set_focus(self.commandBox.inputBox)
+        self.commandBox.styles.display = "block"
+
+    def action_remove_commandBox(self):
+        self.set_focus(self.inputBox)
+        self.commandBox.styles.display = "none"
+
+    def action_focus_friendsBox(self):
+        self.set_focus(self.friendsBox)
 
     def on_mount(self) -> None:
         self.install_screen(LoginBox(), name="bsod")
@@ -53,11 +70,11 @@ class LazyChat(App):
                 classes="vertical"
             ),
         )
+        yield self.commandBox
 
     def core_run(self):
         # 聚焦到下一个部件
-        self.screen.focus_next()
-        self.screen.focus_next()
+        self.set_focus(self.inputBox)
 
         self.set_interval(0.1, self.server_listen)
         self.core.run()
