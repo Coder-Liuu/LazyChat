@@ -3,7 +3,7 @@ import logging
 from textual.app import ComposeResult
 from textual.widgets import Static, Label
 
-from main.widgets.tools.NewLabel import NewLabel
+from LazyChat.widgets.tools.NewLabel import NewLabel
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 

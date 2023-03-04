@@ -4,7 +4,7 @@ from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual.widgets import Static, Input
 
-from main.message import LoginRequestMessage
+from LazyChat.message import LoginRequestMessage
 
 from .tools.Tip import Tip
 
