@@ -4,6 +4,8 @@ from textual.app import RenderResult, ComposeResult
 from textual.widget import Widget
 from textual.widgets import Static, Label, Input
 
+from LazyChat.message import NoticeRequestMessage
+
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 
@@ -26,7 +28,16 @@ class CommandBox(Widget):
         yield self.inputBox
 
     def on_input_submitted(self, event: Input.Submitted):
+        _input = event.value
         if event.input.name == "command":
-            logging.debug(f"command: {event.value}")
-            self.app.action_remove_commandBox()
+            index = _input.find(' ')
+            notice = _input[:index]
+            value = _input[index + 1:]
+            if notice == "/add":
+                msg = NoticeRequestMessage(1, self.app.username, value)
+                self.app.core.send_msg(msg)
+            self.inputBox.value = ""
+
+            # logging.debug(f"command: {}-----{_input[index + 1:]}")
+            # self.app._action_remove_commandBox()
             # self.styles.display = "none"

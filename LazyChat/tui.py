@@ -17,7 +17,8 @@ from textual.widgets import Input, Header, Static, Label
 from widgets.InfoBox import InfoBox
 from widgets.CommandBox import CommandBox
 from widgets.FriendsBox import FriendsBox
-from message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage
+from message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage, \
+    NoticeResponseMessage
 from corenet import CoreNet
 from widgets.ContentBox import ContentBox
 from widgets.LoginBox import LoginBox
@@ -65,19 +66,19 @@ class LazyChat(App):
         self.set_focus(self.commandBox.inputBox)
         self.commandBox.styles.display = "block"
 
-    def __action_remove_commandBox(self):
+    def _action_remove_commandBox(self):
         self.set_focus(self.friendsBox.list)
         self.commandBox.styles.display = "none"
 
-    def __action_remove_noticeBox(self):
+    def _action_remove_noticeBox(self):
         self.set_focus(self.friendsBox.list)
         self.noticeBox.styles.display = "none"
 
     def action_remove_box(self):
         if self.commandBox.styles.display == "block":
-            self.__action_remove_commandBox()
+            self._action_remove_commandBox()
         elif self.noticeBox.styles.display == "block":
-            self.__action_remove_noticeBox()
+            self._action_remove_noticeBox()
 
     def action_focus_friendsBox(self):
         self.set_focus(self.friendsBox)
@@ -139,6 +140,17 @@ class LazyChat(App):
 
                 if from_user == self.contentBox.label.text:
                     self.contentBox.update_list(from_user)
+            elif isinstance(message, NoticeResponseMessage):
+                from_user = message.from_user
+                to_user = message.to_user
+                logging.debug(f"{message}")
+                # 发起请求阶段
+                if message.notice_type == 1:
+                    self.noticeBox.append(f"[bold red]{from_user}[/bold red] 想添加你为好友", name=from_user)
+                # 添加成功阶段
+                elif message.notice_type == 2:
+                    self.friendsBox.append(f"[bold red]{from_user}[/bold red]", name=from_user)
+
 
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":

@@ -88,3 +88,30 @@ class ChatToOneResponseMessage(Message):
     @classmethod
     def from_dict(cls, data):
         return cls(data["from_user"], data["to_user"], data["content"])
+
+
+class NoticeRequestMessage(Message):
+    message_type = 6
+
+    # 添加好友、创建群聊、群聊邀请
+    def __init__(self, notice_type, from_user, to_user):
+        self.notice_type = notice_type
+        self.from_user = from_user
+        self.to_user = to_user
+
+    def to_dict(self):
+        return {'notice_type': self.notice_type, "from_user": self.from_user, "to_user": self.to_user}
+
+
+class NoticeResponseMessage(Message):
+    message_type = 7
+
+    def __init__(self, notice_type, from_user, to_user, reason):
+        self.notice_type = notice_type
+        self.from_user = from_user
+        self.to_user = to_user
+        self.reason = reason
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data["notice_type"], data["from_user"], data["to_user"], data["reason"])

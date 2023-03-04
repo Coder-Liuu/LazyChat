@@ -27,8 +27,8 @@ class FriendsBox(Static):
 
         self.list = ListView(
             ListItem(Label("ChatAll"), name="ChatAll"),
-            ListItem(Label("lisi"), name="lisi"),
-            ListItem(Label("zhangsan"), name="zhangsan"),
+            # ListItem(Label("lisi"), name="lisi"),
+            # ListItem(Label("zhangsan"), name="zhangsan"),
         )
 
     def action_select_cursor(self):
@@ -46,10 +46,10 @@ class FriendsBox(Static):
         yield Label("Friends", classes="center_label")
         yield self.list
 
-    def append(self, value):
+    def append(self, value, name):
         label = Label(value)
         container = Container(label, classes="blank")
-        item = ListItem(container)
+        item = ListItem(container, name=name)
         self.list.append(item)
 
     def on_list_view_selected(self, item: ListView.Selected):
