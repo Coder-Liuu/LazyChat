@@ -5,27 +5,22 @@ from textual.containers import Container
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label
 
+from .tools.NewLabel import NewLabel
+
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
-
-
-class NewLabel(Static):
-    text = reactive("ChatAll")
-
-    def render(self) -> str:
-        return f"{self.text}"
 
 
 class ContentBox(Static):
     DEFAULT_CSS = """
-    .content_box {
+    ContentBox {
         height: 3fr;
         border: solid green;
     }
     """
 
-    def __init__(self, classes):
-        super().__init__(classes=classes)
-        self.label = NewLabel(classes="center_label")
+    def __init__(self):
+        super().__init__()
+        self.label = NewLabel()
         self.list = ListView()
         self.list.can_focus = False
         self.map = dict()

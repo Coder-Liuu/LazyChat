@@ -4,14 +4,14 @@ Screen {
     /*border: solid green;*/
 }
 /* LazyChat */
-.horizontal {
-    width: 20%;
-    height: 100%;
-    border: solid green;
+
+.test_border {
+    /*border: solid green;*/
+    width: 24%;
 }
 
 .vertical {
-    width: 78%;
+    width: 74%;
 }
 
 

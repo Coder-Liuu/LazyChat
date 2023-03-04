@@ -22,7 +22,7 @@ class CommandBox(Widget):
     inputBox = Input(placeholder="例如: /add 好友名字", name="command")
 
     def compose(self) -> ComposeResult:
-        yield Label("输入你的命令:")
+        yield Label("执行命令\n",classes="center_label")
         yield self.inputBox
 
     def on_input_submitted(self, event: Input.Submitted):

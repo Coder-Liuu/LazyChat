@@ -1,10 +1,20 @@
+import sys
+import os
+
+# 解决PyCharm的根路径的问题
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
 import logging
 from queue import Queue
 
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical
-from textual.widgets import Input, Header
+from textual.containers import Horizontal, Vertical, Container
+from textual.widgets import Input, Header, Static, Label
 
+from widgets.InfoBox import InfoBox
 from widgets.CommandBox import CommandBox
 from widgets.FriendsBox import FriendsBox
 from message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage
@@ -12,6 +22,7 @@ from corenet import CoreNet
 from widgets.ContentBox import ContentBox
 from widgets.LoginBox import LoginBox
 from widgets.Welcome import Welcome
+from widgets.NoticeBox import NoticeBox
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
@@ -22,30 +33,57 @@ class LazyChat(App):
         ("b", "push_screen('bsod')", "BSOD"),
         ("h", "push_screen('welcome')", "WelCome"),
         ("c", "display_commandBox()", "DisPlay CommandBox"),
-        ("escape ", "remove_commandBox()", "Remove CommandBox"),
+        ("m", "display_noticeBox()", "DisPlay NoticeBox"),
+        ("escape ", "remove_box()", "Remove CommandBox"),
         ("ctrl+h", "focus_friendsBox()", "Focus FriendsBox"),
+        ("q", "exit()", "Exit"),
+        ("ctrl+q", "exit()", "Exit"),
     ]
 
     def __init__(self, core):
         super().__init__()
         self.core = core
         self.inputBox = Input(placeholder=f"Say Something", name="inputBox")
-        self.contentBox = ContentBox(classes="content_box")
+        self.contentBox = ContentBox()
         self.header = Header(name="Welcome to TermApp", show_clock=True)
-        self.friendsBox = FriendsBox(classes="horizontal")
+        self.friendsBox = FriendsBox()
+        self.infoBox = InfoBox()
+
         self.commandBox = CommandBox(id="commandBox")
         self.commandBox.styles.display = "none"
+        self.noticeBox = NoticeBox(id="noticeBox")
+        self.noticeBox.styles.display = "none"
+
+    def action_exit(self):
+        exit(0)
+
+    def action_display_noticeBox(self):
+        self.set_focus(self.noticeBox.noticeList)
+        self.noticeBox.styles.display = "block"
 
     def action_display_commandBox(self):
         self.set_focus(self.commandBox.inputBox)
         self.commandBox.styles.display = "block"
 
-    def action_remove_commandBox(self):
-        self.set_focus(self.inputBox)
+    def __action_remove_commandBox(self):
+        self.set_focus(self.friendsBox.list)
         self.commandBox.styles.display = "none"
+
+    def __action_remove_noticeBox(self):
+        self.set_focus(self.friendsBox.list)
+        self.noticeBox.styles.display = "none"
+
+    def action_remove_box(self):
+        if self.commandBox.styles.display == "block":
+            self.__action_remove_commandBox()
+        elif self.noticeBox.styles.display == "block":
+            self.__action_remove_noticeBox()
 
     def action_focus_friendsBox(self):
         self.set_focus(self.friendsBox)
+
+    def action_focus_inputBox(self):
+        self.set_focus(self.inputBox)
 
     def on_mount(self) -> None:
         self.install_screen(LoginBox(), name="bsod")
@@ -63,7 +101,11 @@ class LazyChat(App):
     def compose(self) -> ComposeResult:
         yield self.header
         yield Horizontal(
-            self.friendsBox,
+            Vertical(
+                self.friendsBox,
+                self.infoBox,
+                classes="test_border"
+            ),
             Vertical(
                 self.contentBox,
                 self.inputBox,
@@ -71,12 +113,13 @@ class LazyChat(App):
             ),
         )
         yield self.commandBox
+        yield self.noticeBox
 
     def core_run(self):
         # 聚焦到下一个部件
         self.set_focus(self.inputBox)
-
         self.set_interval(0.1, self.server_listen)
+        self.infoBox.title.text = "当前用户\n" + self.username
         self.core.run()
 
     def server_listen(self):

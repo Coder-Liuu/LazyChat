@@ -4,9 +4,9 @@ from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual.widgets import Static, Input
 
-from message import LoginRequestMessage
+from main.message import LoginRequestMessage
 
-from widgets.Tip import Tip
+from .tools.Tip import Tip
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
