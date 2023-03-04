@@ -25,7 +25,7 @@ class LazyChat(App):
     def __init__(self, core):
         super().__init__()
         self.core = core
-        self.inputBox = Input(placeholder="Say Something", name="inputBox")
+        self.inputBox = Input(placeholder=f"Say Something", name="inputBox")
         self.contentBox = ContentBox(classes="content_box")
         self.header = Header(name="Welcome to TermApp", show_clock=True)
         self.friendsBox = FriendsBox(classes="horizontal")

@@ -9,12 +9,8 @@
     width: 78%;
 }
 
-/* Content_Box */
-.content_box {
-    height: 3fr;
-    border: solid green;
-}
 
+/* FriendsBox and ContentBox */
 .blank {
     align: left middle;
 }
@@ -24,31 +20,4 @@
     content-align-vertical: middle;
     width: 100%;
     color: white;
-}
-
-
-/* Login Box*/
-LoginBox {
-    align: center middle;
-}
-
-LoginBox>Static {
-    align: center middle;
-}
-
-#title {
-    content-align-horizontal: center;
-    text-style: reverse;
-}
-
-
-Tip {
-    width: 50%;
-    height: 50%;
-    padding: 1 2;
-    background: $panel;
-    color: $text;
-    border: $secondary tall;
-    align: center middle;
-    content-align: center middle;
 }

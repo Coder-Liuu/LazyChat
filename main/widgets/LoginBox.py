@@ -12,11 +12,25 @@ logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 
 class LoginBox(Screen):
+    DEFAULT_CSS = """
+    LoginBox {
+        align: center middle;
+    }
+
+    LoginBox>Static {
+        align: center middle;
+    }
+
+    #title {
+        content-align-horizontal: center;
+        text-style: reverse;
+    }
+    """
     BINDINGS = [("escape", "app.pop_screen", "Pop screen")]
 
     def on_mount(self) -> None:
         self.username = "zhangsan"
-        self.password = "123"
+        self.password = "12"
 
         self.tip = Tip()
         self.app.install_screen(self.tip, name="tip")

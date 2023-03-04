@@ -4,7 +4,6 @@ from textual.app import ComposeResult
 from textual.containers import Container
 from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label
-from textual.widget import Widget
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
@@ -17,6 +16,14 @@ class NewLabel(Static):
 
 
 class ContentBox(Static):
+    DEFAULT_CSS = """
+    .content_box {
+        height: 3fr;
+        border: solid green;
+    }
+
+    """
+
     def __init__(self, classes):
         super().__init__(classes=classes)
         self.label = NewLabel(classes="center_label")

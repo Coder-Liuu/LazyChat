@@ -1,21 +1,26 @@
 import logging
 import os
-import random
 import selectors
 import struct
 import json
 import socket
 import threading
 
-from message import LoginRequestMessage, Message, ChatAllRequestMessage
+from message import Message
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
+
+IP_ADDR = "localhost"
+PORT = 8080
+
 
 class CoreNet:
     def __init__(self, queue):
         # 发送数据给Netty服务端
         self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.conn.connect(('localhost', 8080))  # 连接服务器
+        # 连接服务器
+        self.conn.connect((IP_ADDR, PORT))
+        # 消息队列
         self.queue = queue
 
     def __del__(self):
@@ -67,17 +72,12 @@ class CoreNet:
         t1 = threading.Thread(target=self.listen_recv, name="消息队列", args=(self.queue,))
         t1.setDaemon(True)
         t1.start()
-        # sub_p = Process(target=self.listen_recv, name="监听线程", args=(self.queue,))
-        # sub_p.daemon = True
-        # sub_p.start()
-
 
     def listen_recv(self, queue):
         sel = selectors.DefaultSelector()
         sel.register(self.conn, selectors.EVENT_READ, self.recv_msg)
 
         while True:
-            logging.debug("queue put block")
             event = sel.select()
             for key, _ in event:
                 callback = key.data

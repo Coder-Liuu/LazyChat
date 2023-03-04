@@ -7,7 +7,7 @@ from rich.markdown import Markdown
 WELCOME_MD = """\
 # Welcome LazyChat!
 
-Textual is a TUI, or *Text User Interface*, framework for Python inspired by modern web development. **We hope you enjoy using Textual!**
+LazyChat是基于*Textual*一款终端聊天应用程序
 
 ## Dune quote
 
@@ -45,6 +45,7 @@ class Welcome(Screen):
     def compose(self) -> ComposeResult:
         yield Container(Static(Markdown(WELCOME_MD), id="text"), id="md")
 
+
 if __name__ == '__main__':
     class WelcomeApp(App):
         def compose(self) -> ComposeResult:
@@ -52,5 +53,7 @@ if __name__ == '__main__':
 
         def on_button_pressed(self) -> None:
             self.exit()
+
+
     app = WelcomeApp()
     app.run()
