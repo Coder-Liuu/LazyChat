@@ -1,9 +1,9 @@
 import logging
 
-from textual.app import RenderResult, ComposeResult
+from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.widget import Widget
-from textual.widgets import Static, Label, Input, ListView, ListItem
+from textual.widgets import Label, ListView, ListItem
 
 from LazyChat.message import NoticeRequestMessage
 
@@ -28,13 +28,7 @@ class NoticeBox(Widget):
         border: $secondary tall;
     }
     """
-    noticeList = ListView(
-        # ListItem(Label("test")),
-        # ListItem(Label("zhangsan"), name="zhangsan"),
-        # ListItem(Label("test")),
-        # ListItem(Label("test")),
-        # ListItem(Label("test")),
-    )
+    noticeList = ListView()
 
     def compose(self) -> ComposeResult:
         yield Label("消息通知\n", classes="center_label")

@@ -5,7 +5,6 @@ from textual.screen import Screen
 from textual.widgets import Static, Input
 
 from LazyChat.message import LoginRequestMessage
-
 from .tools.Tip import Tip
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
@@ -39,8 +38,6 @@ class LoginBox(Screen):
 
         # 聚焦到 input_username组件
         self.set_focus(self.input_username)
-        # 聚焦到下一个组件
-        # self.focus_next()
 
     def compose(self) -> ComposeResult:
         yield Static("欢迎登陆[b]TermAPP[/b]", id="title")
@@ -75,7 +72,6 @@ if __name__ == "__main__":
     class BSODApp(App):
         SCREENS = {"bsod": LoginBox()}
         BINDINGS = [("b", "push_screen('bsod')", "BSOD")]
-
 
     app = BSODApp()
     app.run()

@@ -20,6 +20,7 @@ class InfoBox(Static):
 
     def compose(self) -> ComposeResult:
         yield self.title
-        yield Label("\n查询帮助请按h")
-        yield Label("执行命令请按c")
-        yield Label("查看通知请按m")
+        yield Label("按键说明")
+        yield Label("切换焦点TAB")
+        yield Label("查询帮助h  执行命令c")
+        yield Label("查看通知m")

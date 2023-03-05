@@ -1,21 +1,19 @@
+import json
 import logging
 import os
 import selectors
-import struct
-import json
 import socket
+import struct
 import threading
 
 from message import Message
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
-IP_ADDR = "localhost"
-PORT = 8080
 
 
 class CoreNet:
-    def __init__(self, queue):
+    def __init__(self, queue, IP_ADDR, PORT):
         # 发送数据给Netty服务端
         self.conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # 连接服务器

@@ -40,7 +40,7 @@ class Welcome(Screen):
             margin:  0 1;
         }
     """
-    BINDINGS = [("enter", "app.pop_screen", "Pop screen")]
+    BINDINGS = [("escape", "app.pop_screen", "Pop screen")]
 
     def compose(self) -> ComposeResult:
         yield Container(Static(Markdown(WELCOME_MD), id="text"), id="md")

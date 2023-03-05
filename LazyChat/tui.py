@@ -24,6 +24,8 @@ from widgets.ContentBox import ContentBox
 from widgets.LoginBox import LoginBox
 from widgets.Welcome import Welcome
 from widgets.NoticeBox import NoticeBox
+from LazyChat.widgets.TipBox import TipBox
+from utils.notification import notify_sound
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
@@ -31,12 +33,12 @@ logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 class LazyChat(App):
     CSS_PATH = "ui/tui.css"
     BINDINGS = [
-        ("b", "push_screen('bsod')", "BSOD"),
+        ("b", "push_screen('login')", "login"),
         ("h", "push_screen('welcome')", "WelCome"),
         ("c", "display_commandBox()", "DisPlay CommandBox"),
         ("m", "display_noticeBox()", "DisPlay NoticeBox"),
         ("escape ", "remove_box()", "Remove CommandBox"),
-        ("ctrl+h", "focus_friendsBox()", "Focus FriendsBox"),
+        # ("ctrl+j", "focus_friendsBox()", "Focus FriendsBox"),
         ("q", "exit()", "Exit"),
         ("ctrl+q", "exit()", "Exit"),
     ]
@@ -54,6 +56,8 @@ class LazyChat(App):
         self.commandBox.styles.display = "none"
         self.noticeBox = NoticeBox(id="noticeBox")
         self.noticeBox.styles.display = "none"
+        self.tipBox = TipBox(id="tipBox")
+        self.tipBox.styles.display = "none"
 
     def action_exit(self):
         exit(0)
@@ -74,11 +78,17 @@ class LazyChat(App):
         self.set_focus(self.friendsBox.list)
         self.noticeBox.styles.display = "none"
 
+    def _action_remove_tipBox(self):
+        self.set_focus(self.friendsBox.list)
+        self.tipBox.styles.display = "none"
+
     def action_remove_box(self):
         if self.commandBox.styles.display == "block":
             self._action_remove_commandBox()
         elif self.noticeBox.styles.display == "block":
             self._action_remove_noticeBox()
+        elif self.tipBox.styles.display == "block":
+            self._action_remove_tipBox()
 
     def action_focus_friendsBox(self):
         self.set_focus(self.friendsBox)
@@ -87,9 +97,9 @@ class LazyChat(App):
         self.set_focus(self.inputBox)
 
     def on_mount(self) -> None:
-        self.install_screen(LoginBox(), name="bsod")
+        self.install_screen(LoginBox(), name="login")
         self.install_screen(Welcome(), name="welcome")
-        self.push_screen('bsod')
+        self.push_screen('login')
 
     @classmethod
     def runAll(cls, core):
@@ -115,6 +125,7 @@ class LazyChat(App):
         )
         yield self.commandBox
         yield self.noticeBox
+        yield self.tipBox
 
     def core_run(self):
         # 聚焦到下一个部件
@@ -127,6 +138,7 @@ class LazyChat(App):
         if self.core.queue.qsize():
             message = self.core.queue.get()
             logging.debug(f"server listen: {message} {type(message)}")
+            notify_sound()
             if isinstance(message, ChatAllResponseMessage):
                 if message.username == self.username:
                     self.contentBox.append(f"[bold red]{message.username}[/bold red] : {message.content}")
@@ -149,11 +161,16 @@ class LazyChat(App):
                     self.noticeBox.append(f"[bold red]{from_user}[/bold red] 想添加你为好友", name=from_user)
                 # 添加成功阶段
                 elif message.notice_type == 2:
+                    self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 添加成功"
+                    self.tipBox.styles.display = "block"
                     self.friendsBox.append(f"[bold red]{from_user}[/bold red]", name=from_user)
-
 
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":
+            if event.value == "":
+                self.tipBox.content.text = "发送的消息不能为空"
+                self.tipBox.styles.display = "block"
+                return
             to_user = self.contentBox.label.text
             if to_user == "ChatAll":
                 logging.debug("APP: on_input_submitted")
@@ -168,6 +185,8 @@ class LazyChat(App):
 
 
 if __name__ == "__main__":
+    IP_ADDR = "localhost"
+    PORT = 8080
     queue = Queue()
-    core = CoreNet(queue)
+    core = CoreNet(queue, IP_ADDR, PORT)
     LazyChat.runAll(core)
