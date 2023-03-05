@@ -1,8 +1,9 @@
 import logging
 
 from textual.app import App, ComposeResult
+from textual.containers import Container
 from textual.screen import Screen
-from textual.widgets import Static, Input
+from textual.widgets import Static, Input, Label
 
 from LazyChat.message import LoginRequestMessage
 from .tools.Tip import Tip
@@ -19,6 +20,10 @@ class LoginBox(Screen):
     LoginBox>Static {
         align: center middle;
     }
+    LoginBox> Container{
+        align: center middle;
+        border: solid green;
+    }
 
     #title {
         content-align-horizontal: center;
@@ -26,6 +31,16 @@ class LoginBox(Screen):
     }
     """
     BINDINGS = [("escape", "remove_tip", "Remove Tip Widget")]
+
+    # 使用下面网站进行生成的：http://patorjk.com/software/taag/#p=testall&h=2&v=2&f=Univers&t=LAZYCHAT
+    TITLE = """
+      _                _______     _______ _    _       _______ 
+     | |        /\    |___  | \   / / ____| |  | |   /\|__   __|
+     | |       /  \      / / \ \_/ / |    | |__| |  /  \  | |   
+     | |      / /\ \    / /   \   /| |    |  __  | / /\ \ | |   
+     | |____ / ____ \  / /__   | | | |____| |  | |/ ____ \| |   
+     |______/_/    \_\/_____|  |_|  \_____|_|  |_/_/    \_\_|   
+    """
 
     tip = Tip()
     input_username = Input(placeholder="账号", name="username")
@@ -40,7 +55,7 @@ class LoginBox(Screen):
         self.set_focus(self.input_username)
 
     def compose(self) -> ComposeResult:
-        yield Static("欢迎登陆[b]TermAPP[/b]", id="title")
+        yield Container(Label(self.TITLE))
         yield self.input_username
         yield self.input_password
         yield self.tip
@@ -72,6 +87,7 @@ if __name__ == "__main__":
     class BSODApp(App):
         SCREENS = {"bsod": LoginBox()}
         BINDINGS = [("b", "push_screen('bsod')", "BSOD")]
+
 
     app = BSODApp()
     app.run()

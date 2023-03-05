@@ -29,15 +29,17 @@ class CommandBox(Widget):
 
     def on_input_submitted(self, event: Input.Submitted):
         _input = event.value
-        if event.input.name == "command":
-            index = _input.find(' ')
-            notice = _input[:index]
-            value = _input[index + 1:]
-            if notice == "/add":
-                msg = NoticeRequestMessage(1, self.app.username, value)
-                self.app.core.send_msg(msg)
-            self.inputBox.value = ""
+        if event.input.name != "command":
+            return
 
-            # logging.debug(f"command: {}-----{_input[index + 1:]}")
-            # self.app._action_remove_commandBox()
-            # self.styles.display = "none"
+        index = _input.find(' ')
+        notice = _input[:index]
+        value = _input[index + 1:]
+        if notice == "/add":
+            if value == self.app.username:
+                self.app.on_tip_box("不能添加自己为好友")
+                return
+
+            msg = NoticeRequestMessage(1, self.app.username, value)
+            self.app.core.send_msg(msg)
+        self.inputBox.value = ""

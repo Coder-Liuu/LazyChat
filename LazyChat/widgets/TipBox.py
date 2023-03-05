@@ -1,6 +1,7 @@
 import logging
 
 from textual.app import ComposeResult
+from textual.containers import Vertical
 from textual.widget import Widget
 from textual.widgets import Label
 

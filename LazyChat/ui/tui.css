@@ -1,7 +1,6 @@
 Screen {
     align: center middle;
-    /*layers: below above;*/
-    /*border: solid green;*/
+    layers: basic above;
 }
 /* LazyChat */
 

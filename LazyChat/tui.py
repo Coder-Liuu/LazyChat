@@ -38,7 +38,6 @@ class LazyChat(App):
         ("c", "display_commandBox()", "DisPlay CommandBox"),
         ("m", "display_noticeBox()", "DisPlay NoticeBox"),
         ("escape ", "remove_box()", "Remove CommandBox"),
-        # ("ctrl+j", "focus_friendsBox()", "Focus FriendsBox"),
         ("q", "exit()", "Exit"),
         ("ctrl+q", "exit()", "Exit"),
     ]
@@ -165,11 +164,14 @@ class LazyChat(App):
                     self.tipBox.styles.display = "block"
                     self.friendsBox.append(f"[bold red]{from_user}[/bold red]", name=from_user)
 
+    def on_tip_box(self, value):
+        self.tipBox.content.text = value
+        self.tipBox.styles.display = "block"
+
     def on_input_submitted(self, event: Input.Submitted):
         if event.input.name == "inputBox":
             if event.value == "":
-                self.tipBox.content.text = "发送的消息不能为空"
-                self.tipBox.styles.display = "block"
+                self.on_tip_box("发送的消息不能为空")
                 return
             to_user = self.contentBox.label.text
             if to_user == "ChatAll":
@@ -185,8 +187,20 @@ class LazyChat(App):
 
 
 if __name__ == "__main__":
-    IP_ADDR = "localhost"
-    PORT = 8080
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Example of argparse')
+
+    parser.add_argument('-ip', '--ip_addr', default="localhost",
+                        help='The IP address to use for the connection. Defaults to 127.0.0.1 if '
+                             'not specified.')
+    parser.add_argument('-p', '--port', default=8080,
+                        help='The port to use for the connection. Defaults to 8080 if not specified.')
+    args = parser.parse_args()
+
+    IP_ADDR = args.ip_addr
+    PORT = args.port
+
     queue = Queue()
     core = CoreNet(queue, IP_ADDR, PORT)
     LazyChat.runAll(core)
