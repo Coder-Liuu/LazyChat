@@ -18,7 +18,7 @@ from widgets.InfoBox import InfoBox
 from widgets.CommandBox import CommandBox
 from widgets.FriendsBox import FriendsBox
 from message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage, \
-    NoticeResponseMessage
+    NoticeResponseMessage, MessageTypes
 from corenet import CoreNet
 from widgets.ContentBox import ContentBox
 from widgets.LoginBox import LoginBox
@@ -34,7 +34,7 @@ class LazyChat(App):
     CSS_PATH = "ui/tui.css"
     BINDINGS = [
         ("b", "push_screen('login')", "login"),
-        ("h", "push_screen('welcome')", "WelCome"),
+        ("?", "push_screen('welcome')", "WelCome"),
         ("c", "display_commandBox()", "DisPlay CommandBox"),
         ("m", "display_noticeBox()", "DisPlay NoticeBox"),
         ("escape ", "remove_box()", "Remove CommandBox"),
@@ -156,13 +156,38 @@ class LazyChat(App):
                 to_user = message.to_user
                 logging.debug(f"{message}")
                 # 发起请求阶段
-                if message.notice_type == 1:
+                if message.notice_type == MessageTypes.NOTICE_FRIEND_REQ:
                     self.noticeBox.append(f"[bold red]{from_user}[/bold red] 想添加你为好友", name=from_user)
                 # 添加成功阶段
-                elif message.notice_type == 2:
+                elif message.notice_type == MessageTypes.NOTICE_FRIEND_AGREE:
                     self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 添加成功"
                     self.tipBox.styles.display = "block"
-                    self.friendsBox.append(f"[bold red]{from_user}[/bold red]", name=from_user)
+                    if message.reason != "not append":
+                        self.friendsBox.append(f"[bold red]{from_user}[/bold red]", name=from_user)
+                elif message.notice_type == MessageTypes.NOTICE_FRIEND_REFUSE:
+                    self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 拒绝了你的请求" + message.reason
+                    self.tipBox.styles.display = "block"
+                # 上线，接受好友列表
+                elif message.notice_type == MessageTypes.NOTICE_FRIEND_LIST:
+                    logging.debug(message.reason)
+                    friends = message.reason[1:-1]
+                    friends = friends.split(",")
+                    for friend in friends:
+                        self.friendsBox.append(f"[bold red]{friend}[/bold red]", name=friend)
+                elif message.notice_type == MessageTypes.NOTICE_OFFLINE:
+                    self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 下线啦!"
+                    self.tipBox.styles.display = "block"
+                elif message.notice_type == MessageTypes.NOTICE_ONLINE:
+                    self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 上线啦!"
+                    self.tipBox.styles.display = "block"
+                elif message.notice_type == MessageTypes.NOTICE_FRIEND_REMOVE:
+                    if from_user != "ChatAll":
+                        self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red]" + message.reason
+                        self.tipBox.styles.display = "block"
+                        self.friendsBox.remove_friend(from_user)
+                    else:
+                        self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 不能删除"
+                        self.tipBox.styles.display = "block"
 
     def on_tip_box(self, value):
         self.tipBox.content.text = value
@@ -194,12 +219,14 @@ if __name__ == "__main__":
     parser.add_argument('-ip', '--ip_addr', default="localhost",
                         help='The IP address to use for the connection. Defaults to 127.0.0.1 if '
                              'not specified.')
-    parser.add_argument('-p', '--port', default=8080,
+    parser.add_argument('-p', '--port', default="8080",
                         help='The port to use for the connection. Defaults to 8080 if not specified.')
     args = parser.parse_args()
 
     IP_ADDR = args.ip_addr
-    PORT = args.port
+    PORT = int(args.port)
+    print("IP_ADDR", IP_ADDR)
+    print("PORT", PORT)
 
     queue = Queue()
     core = CoreNet(queue, IP_ADDR, PORT)
