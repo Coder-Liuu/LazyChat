@@ -24,7 +24,8 @@ class CommandBox(Widget):
     inputBox = Input(placeholder="例如: /add 好友名字", name="command")
 
     def compose(self) -> ComposeResult:
-        yield Label("执行命令\n",classes="center_label")
+        # 为了不紧凑，所以加\n
+        yield Label("执行命令:blue_car: \n", classes="center_label")
         yield self.inputBox
 
     def on_input_submitted(self, event: Input.Submitted):
@@ -36,6 +37,7 @@ class CommandBox(Widget):
         notice = _input[:index]
         value = _input[index + 1:]
         if notice == "/add":
+            value = value.strip()
             if value == self.app.username:
                 self.app.on_tip_box("不能添加自己为好友")
                 return

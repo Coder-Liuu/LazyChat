@@ -25,5 +25,5 @@ class TipBox(Widget):
     content = NewLabel()
 
     def compose(self) -> ComposeResult:
-        yield Label("提示框\n", classes="center_label")
+        yield Label("提示框:frowning:\n", classes="center_label")
         yield self.content

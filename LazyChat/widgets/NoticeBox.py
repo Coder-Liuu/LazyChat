@@ -32,7 +32,7 @@ class NoticeBox(Widget):
     noticeList = ListView()
 
     def compose(self) -> ComposeResult:
-        yield Label("消息通知\n", classes="center_label")
+        yield Label("消息通知:bulb:", classes="center_label")
         yield self.noticeList
 
     def append(self, value, name):

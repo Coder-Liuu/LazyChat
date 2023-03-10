@@ -23,6 +23,8 @@ class FriendsBox(Static):
         Binding("j", "cursor_down", "Cursor Down", show=False),
         Binding("k", "cursor_up", "Cursor Up", show=False),
         Binding("d", "remove", "Remove Friend", show=False),
+        Binding("g", "select_first", "Select First", show=False),
+        Binding("G", "select_last", "Select Last", show=False),
     ]
 
     def __init__(self):
@@ -43,13 +45,21 @@ class FriendsBox(Static):
     def action_cursor_down(self):
         self.list.action_cursor_down()
 
+    def action_select_first(self):
+        self.list.index = 0
+
+    def action_select_last(self):
+        childrens = self.list.children
+        n = len(childrens)
+        self.list.index = n - 1
+
     def action_remove(self):
         item_name = self.list.highlighted_child.name
         msg = NoticeRequestMessage(MessageTypes.NOTICE_FRIEND_REMOVE, self.app.username, item_name)
         self.app.core.send_msg(msg)
 
     def compose(self) -> ComposeResult:
-        yield Label("Friends", classes="center_label")
+        yield Label("Friends :smiley:\n", classes="center_label")
         yield self.list
 
     def remove_friend(self, name):
@@ -59,7 +69,7 @@ class FriendsBox(Static):
             if children.name == name:
                 children.remove()
 
-    def append(self, value, name):
+    def append(self, value: str, name: str):
         label = Label(value)
         container = Container(label, classes="blank")
         item = ListItem(container, name=name)

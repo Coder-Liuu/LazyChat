@@ -33,9 +33,8 @@ logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 class LazyChat(App):
     CSS_PATH = "ui/tui.css"
     BINDINGS = [
-        ("b", "push_screen('login')", "login"),
         ("?", "push_screen('welcome')", "WelCome"),
-        ("c", "display_commandBox()", "DisPlay CommandBox"),
+        ("/", "display_commandBox()", "DisPlay CommandBox"),
         ("m", "display_noticeBox()", "DisPlay NoticeBox"),
         ("escape ", "remove_box()", "Remove CommandBox"),
         ("q", "exit()", "Exit"),
@@ -130,7 +129,7 @@ class LazyChat(App):
         # 聚焦到下一个部件
         self.set_focus(self.inputBox)
         self.set_interval(0.1, self.server_listen)
-        self.infoBox.title.text = "当前用户\n" + self.username
+        self.infoBox.title.text = self.username + ":boy_light_skin_tone:"
         self.core.run()
 
     def server_listen(self):
@@ -138,11 +137,13 @@ class LazyChat(App):
             message = self.core.queue.get()
             logging.debug(f"server listen: {message} {type(message)}")
             notify_sound()
+            # ChatAll 消息处理
             if isinstance(message, ChatAllResponseMessage):
                 if message.username == self.username:
                     self.contentBox.append(f"[bold red]{message.username}[/bold red] : {message.content}")
                 else:
                     self.contentBox.append(f"[bold black]{message.username}[/bold black] : {message.content}")
+            # 私聊消息处理
             elif isinstance(message, ChatToOneResponseMessage):
                 from_user = message.from_user
                 if self.contentBox.map.get(from_user) is None:
@@ -173,13 +174,16 @@ class LazyChat(App):
                     friends = message.reason[1:-1]
                     friends = friends.split(",")
                     for friend in friends:
+                        friend = friend.strip()
                         self.friendsBox.append(f"[bold red]{friend}[/bold red]", name=friend)
+                # 好友上、下线提示
                 elif message.notice_type == MessageTypes.NOTICE_OFFLINE:
                     self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 下线啦!"
                     self.tipBox.styles.display = "block"
                 elif message.notice_type == MessageTypes.NOTICE_ONLINE:
                     self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red] 上线啦!"
                     self.tipBox.styles.display = "block"
+                # 好友删除功能提示
                 elif message.notice_type == MessageTypes.NOTICE_FRIEND_REMOVE:
                     if from_user != "ChatAll":
                         self.tipBox.content.text = f"好友[bold red]{from_user}[/bold red]" + message.reason
