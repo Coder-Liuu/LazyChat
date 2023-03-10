@@ -8,30 +8,50 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 
 import logging
-from queue import Queue
 
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical, Container
-from textual.widgets import Input, Header, Static, Label
+from textual.containers import Horizontal, Vertical
+from textual.widgets import Input, Header
 
-from widgets.InfoBox import InfoBox
-from widgets.CommandBox import CommandBox
-from widgets.FriendsBox import FriendsBox
-from message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage, \
+from LazyChat.utils.notification import notify_sound
+from LazyChat.message import ChatAllRequestMessage, ChatToOneRequestMessage, ChatAllResponseMessage, ChatToOneResponseMessage, \
     NoticeResponseMessage, MessageTypes
-from corenet import CoreNet
-from widgets.ContentBox import ContentBox
-from widgets.LoginBox import LoginBox
-from widgets.Welcome import Welcome
-from widgets.NoticeBox import NoticeBox
-from LazyChat.widgets.TipBox import TipBox
-from utils.notification import notify_sound
+from .widgets import InfoBox, CommandBox, FriendsBox, ContentBox, LoginBox, Welcome, NoticeBox, TipBox
+from os import path
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 
 
 class LazyChat(App):
-    CSS_PATH = "ui/tui.css"
+    DEFAULT_CSS = """
+        Screen {
+            align: center middle;
+            layers: basic above;
+        }
+        /* LazyChat */
+
+        .test_border {
+            /*border: solid green;*/
+            width: 24%;
+        }
+
+        .vertical {
+            width: 74%;
+        }
+
+
+        /* FriendsBox and ContentBox */
+        .blank {
+            align: left middle;
+        }
+
+        .center_label{
+            content-align-horizontal: center;
+            content-align-vertical: middle;
+            width: 100%;
+            color: white;
+        }
+    """
     BINDINGS = [
         ("?", "push_screen('welcome')", "WelCome"),
         ("/", "display_commandBox()", "DisPlay CommandBox"),
@@ -216,22 +236,4 @@ class LazyChat(App):
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Example of argparse')
-
-    parser.add_argument('-ip', '--ip_addr', default="localhost",
-                        help='The IP address to use for the connection. Defaults to 127.0.0.1 if '
-                             'not specified.')
-    parser.add_argument('-p', '--port', default="8080",
-                        help='The port to use for the connection. Defaults to 8080 if not specified.')
-    args = parser.parse_args()
-
-    IP_ADDR = args.ip_addr
-    PORT = int(args.port)
-    print("IP_ADDR", IP_ADDR)
-    print("PORT", PORT)
-
-    queue = Queue()
-    core = CoreNet(queue, IP_ADDR, PORT)
-    LazyChat.runAll(core)
+    pass

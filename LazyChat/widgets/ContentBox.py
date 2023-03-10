@@ -2,7 +2,6 @@ import logging
 
 from textual.app import ComposeResult
 from textual.containers import Container
-from textual.reactive import reactive
 from textual.widgets import Static, ListView, ListItem, Label
 
 from .tools.NewLabel import NewLabel

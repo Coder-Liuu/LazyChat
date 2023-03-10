@@ -1,8 +1,5 @@
 import abc
 
-from enum import Enum
-
-
 class MessageTypes:
     LOGIN_REQUEST = 0
     LOGIN_RESPONSE = 1

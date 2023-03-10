@@ -6,7 +6,7 @@ import socket
 import struct
 import threading
 
-from message import Message
+from LazyChat.message import Message
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG, filemode='w')
 

@@ -1,4 +1,3 @@
-from rich.style import Style
 from textual import events
 from textual.app import ComposeResult, App
 from textual.containers import Container
