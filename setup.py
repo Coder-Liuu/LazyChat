@@ -14,7 +14,7 @@ setup(
     },
     install_requires=[
         'playsound==1.2.2',
-        'rich==13.3.2',
-        'textual==0.16.0'
+        'rich==13.3.1',
+        'textual==0.11.1'
     ],
 )
