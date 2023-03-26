@@ -38,7 +38,7 @@ LazyChat是基于[Textual](https://github.com/Textualize/textual)一款终端聊
     - j        向下移动
     - k        向上移动
     - g        移动到顶部
-    - g        移动到底部
+    - G        移动到底部
 ---
      
 ## Dune quote

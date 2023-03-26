@@ -12,4 +12,9 @@ setup(
             'lazychat=LazyChat.main:main',
         ],
     },
+    install_requires=[
+        'playsound==1.2.2',
+        'rich==13.3.2',
+        'textual==0.16.0'
+    ],
 )

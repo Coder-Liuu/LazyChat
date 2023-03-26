@@ -22,3 +22,6 @@ def main():
     queue = Queue()
     core = CoreNet(queue, IP_ADDR, PORT)
     LazyChat.runAll(core)
+
+if __name__ == '__main__':
+    main()

@@ -233,7 +233,3 @@ class LazyChat(App):
                 self.contentBox.append(f"[bold red]{self.username}[/bold red] : {event.value}\n")
                 self.core.send_msg(msg)
                 self.inputBox.value = ""
-
-
-if __name__ == "__main__":
-    pass
